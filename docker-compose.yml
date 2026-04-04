@@ -1,0 +1,27 @@
+services:
+  app:
+    build: .
+    volumes:
+      - .:/var/www/html
+    environment:
+      DATABASE_PATH: /var/www/html/database/app.sqlite
+      LOG_PATH: /var/www/html/logs/app.log
+      RATE_LIMIT_MAX: "100"
+      RATE_LIMIT_WINDOW_SECONDS: "60"
+    networks:
+      - internal
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - internal
+
+networks:
+  internal: {}

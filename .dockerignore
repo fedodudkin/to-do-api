@@ -1,0 +1,28 @@
+# Зависимости (установятся внутри контейнера через entrypoint или RUN)
+vendor/
+
+# Локальные базы данных (в контейнере должна быть чистая БД)
+database/*.sqlite
+database/*.sqlite-journal
+
+# Секреты и настройки
+.env
+.env.local
+.git/
+
+# Логи и временные файлы
+logs/*.log
+.phpunit.result.cache
+tests/_output/
+tests/_support/_generated/
+
+# Файлы IDE и системы
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+
+# Документация (не нужна для работы самого API в контейнере)
+openapi.yaml
+README.md

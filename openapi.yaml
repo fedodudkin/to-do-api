@@ -1,0 +1,291 @@
+openapi: 3.0.3
+info:
+  title: To-Do API
+  description: REST API для управления задачами (PHP 8.2, SQLite)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер (docker-compose web на порту 8080)
+paths:
+  /tasks:
+    get:
+      summary: Получить список всех задач
+      operationId: tasksIndex
+      tags:
+        - Задачи
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Task"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    post:
+      summary: Создать задачу
+      operationId: tasksStore
+      tags:
+        - Задачи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreate"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /tasks/{id}:
+    get:
+      summary: Получить задачу по ID
+      operationId: tasksShow
+      tags:
+        - Задачи
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    put:
+      summary: Обновить задачу (полное или частичное)
+      operationId: tasksUpdatePut
+      tags:
+        - Задачи
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    patch:
+      summary: Обновить задачу (аналогично PUT)
+      operationId: tasksUpdatePatch
+      tags:
+        - Задачи
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Task"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+    delete:
+      summary: Удалить задачу
+      operationId: tasksDestroy
+      tags:
+        - Задачи
+      parameters:
+        - $ref: "#/components/parameters/TaskId"
+      responses:
+        "204":
+          description: No Content
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  parameters:
+    TaskId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID задачи
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор задачи
+        title:
+          type: string
+          description: Заголовок задачи
+        body:
+          type: string
+          nullable: true
+          description: Описание задачи
+        completed:
+          type: boolean
+          description: Статус выполнения задачи
+        created_at:
+          type: string
+          description: Дата создания (UTC, формат Y-m-d H:i:s)
+        updated_at:
+          type: string
+          description: Дата обновления (UTC, формат Y-m-d H:i:s)
+    TaskCreate:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Заголовок задачи (обязательное поле)
+        body:
+          type: string
+          nullable: true
+          description: Описание задачи (необязательное поле)
+        completed:
+          type: boolean
+          default: false
+          description: Статус выполнения задачи
+    TaskUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          description: Новый заголовок задачи
+        body:
+          type: string
+          nullable: true
+          description: Новое описание задачи
+        completed:
+          type: boolean
+          description: Новый статус выполнения задачи
+    ErrorBody:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Описание ошибки
+            code:
+              type: string
+              description: Код ошибки
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    MethodNotAllowed:
+      description: Метод не поддерживается
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    TooManyRequests:
+      description: Слишком много запросов
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Через сколько секунд можно повторить запрос
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"
+    ServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorBody"

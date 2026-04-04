@@ -1,0 +1,29 @@
+# Зависимости Composer
+/vendor/
+
+# База данных
+/database/*.sqlite
+/database/*.sqlite-journal
+
+# Конфигурация и секреты
+.env
+.env.local
+
+# Логи приложения
+/logs/*.log
+
+# Системные файлы Docker (если создаются локально)
+.docker/
+
+# Специфичные файлы IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Временные файлы системы
+.DS_Store
+Thumbs.db
+
+# Кэш PHPUnit (если появится)
+.phpunit.cache
