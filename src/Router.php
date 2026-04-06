@@ -6,6 +6,7 @@ namespace App;
 
 use App\Controllers\TaskController;
 use App\Http\JsonResponse;
+use App\Validators\UrlValidator;
 
 final class Router
 {
@@ -36,17 +37,24 @@ final class Router
         }
 
         if (preg_match('#^/tasks/(\d+)$#', $path, $m)) {
-            $id = (int) $m[1];
-            match ($method) {
-                'GET' => $this->tasks->show($id),
-                'PUT', 'PATCH' => $this->tasks->update($id),
-                'DELETE' => $this->tasks->destroy($id),
-                default => JsonResponse::error([
-                    'message' => 'Метод не поддерживается',
-                    'code' => 'method_not_allowed',
-                ], 405),
-            };
-            return;
+            try {
+                $id = UrlValidator::validateTaskId($m[1]);
+                match ($method) {
+                    'GET' => $this->tasks->show($id),
+                    'PUT', 'PATCH' => $this->tasks->update($id),
+                    'DELETE' => $this->tasks->destroy($id),
+                    default => JsonResponse::error([
+                        'message' => 'Метод не поддерживается',
+                        'code' => 'method_not_allowed',
+                    ], 405),
+                };
+                return;
+            } catch (\InvalidArgumentException $e) {
+                JsonResponse::error([
+                    'message' => 'Некорректный ID задачи',
+                    'code' => 'invalid_id',
+                ], 400);
+            }
         }
 
         JsonResponse::notFound('Маршрут не найден');

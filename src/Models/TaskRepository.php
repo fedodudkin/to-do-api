@@ -53,8 +53,8 @@ final class TaskRepository
              VALUES (:title, :body, :completed, :created_at, :updated_at)'
         );
         $stmt->execute([
-            'title' => $data['title'],
-            'body' => $data['body'],
+            'title' => $this->sanitizeString($data['title']),
+            'body' => $data['body'] !== null ? $this->sanitizeString($data['body']) : null,
             'completed' => $data['completed'] ? 1 : 0,
             'created_at' => $now,
             'updated_at' => $now,
@@ -76,8 +76,10 @@ final class TaskRepository
         if ($existing === null) {
             return null;
         }
-        $title = array_key_exists('title', $data) ? (string) $data['title'] : $existing->title;
-        $body = array_key_exists('body', $data) ? $data['body'] : $existing->body;
+        $title = array_key_exists('title', $data) ? $this->sanitizeString((string) $data['title']) : $existing->title;
+        $body = array_key_exists('body', $data) 
+            ? ($data['body'] === null ? null : $this->sanitizeString($data['body']))
+            : $existing->body;
         $completed = array_key_exists('completed', $data) ? (bool) $data['completed'] : $existing->completed;
         $now = $this->now();
         $stmt = $this->pdo->prepare(
@@ -104,5 +106,13 @@ final class TaskRepository
     private function now(): string
     {
         return (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Санитизация строки для защиты от XSS
+     */
+    private function sanitizeString(string $input): string
+    {
+        return htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 }

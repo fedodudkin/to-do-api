@@ -36,3 +36,20 @@ $pdo->exec(
 );
 
 fwrite(STDOUT, "Database ready.\n");
+
+// Проверяем, нужно ли запустить сидер (только если таблица tasks пуста)
+$countStmt = $pdo->query('SELECT COUNT(*) FROM tasks');
+$taskCount = (int) $countStmt->fetchColumn();
+
+if ($taskCount === 0) {
+    // Запускаем сидер
+    $seederPath = $root . '/bin/seed-db.php';
+    if (file_exists($seederPath)) {
+        fwrite(STDOUT, "Running database seeder...\n");
+        require $seederPath;
+    } else {
+        fwrite(STDOUT, "Seeder not found at: $seederPath\n");
+    }
+} else {
+    fwrite(STDOUT, "Database already contains $taskCount tasks. Skipping seeder.\n");
+}

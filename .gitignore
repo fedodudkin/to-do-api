@@ -4,13 +4,17 @@
 # База данных
 /database/*.sqlite
 /database/*.sqlite-journal
+/database/*.sqlite-shm
+/database/*.sqlite-wal
 
 # Конфигурация и секреты
 .env
 .env.local
+.env.*.local
 
 # Логи приложения
 /logs/*.log
+/logs/*.log.*
 
 # Системные файлы Docker (если создаются локально)
 .docker/
@@ -20,10 +24,34 @@
 .idea/
 *.swp
 *.swo
+*.sublime-*
 
 # Временные файлы системы
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Кэш PHPUnit (если появится)
-.phpunit.cache
+# Кэш PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+
+# Файлы сессий PHP
+/sessions/
+/tmp/sess_*
+
+# Файлы резервных копий
+*.bak
+*.backup
+*~
+
+# OS сгенерированные файлы
+Thumbs.db
+.DS_Store?
+ehthumbs.db
+Icon?
+
+# Файлы конфигурации разработки
+docker-compose.override.yml
+.env.development
+.env.testing

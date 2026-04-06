@@ -6,6 +6,7 @@ use App\Controllers\TaskController;
 use App\Database\PdoFactory;
 use App\Http\JsonResponse;
 use App\Logging\LoggerFactory;
+use App\Middleware\CsrfProtectionMiddleware;
 use App\Middleware\RateLimitMiddleware;
 use App\Middleware\RequestLogMiddleware;
 use App\Models\TaskRepository;
@@ -35,6 +36,9 @@ try {
     $windowSeconds = Env::int('RATE_LIMIT_WINDOW_SECONDS', 60);
     $rateLimiter = new RateLimiter($pdo, $maxRequests, $windowSeconds);
     (new RateLimitMiddleware($rateLimiter))->handle();
+
+    // Защита от CSRF для всех не-GET запросов
+    (new CsrfProtectionMiddleware())->handle();
 
     $repo = new TaskRepository($pdo);
     $controller = new TaskController($repo);
